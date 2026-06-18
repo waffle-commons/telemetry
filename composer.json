@@ -1,16 +1,17 @@
 {
-    "name": "waffle-commons/{COMPONENT_NAME}",
-    "description": "{COMPONENT_NAME} component for Waffle framework.",
+    "name": "waffle-commons/telemetry",
+    "description": "SDK-free enterprise telemetry for Waffle Commons: contract-first tracing no-ops, a Prometheus /waffle-metrics exporter, and stateless worker-metric collectors.",
+    "version": "1.0.0-dev",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Waffle\\Commons\\{COMPONENT_NAME}\\": "src/"
+            "Waffle\\Commons\\Telemetry\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "WaffleTests\\Commons\\{COMPONENT_NAME}\\": "tests/src/"
+            "WaffleTests\\Commons\\Telemetry\\": "tests/src/"
         }
     },
     "authors": [
@@ -30,7 +31,8 @@
         "vimeo/psalm": "^6.16",
         "php-mock/php-mock-phpunit": "^2.15",
         "cyclonedx/cyclonedx-php-composer": "^6.2",
-        "igor-php/igor-php": "^0.7.0"
+        "igor-php/igor-php": "^0.7.0",
+        "nyholm/psr7": "^1.8"
     },
     "scripts": {
         "formatter": "vendor/bin/mago fmt",
@@ -57,10 +59,10 @@
             "@tests"
         ],
         "ci": [
-          "@mago",
-          "@tests",
-          "composer audit",
-          "vendor/bin/psalm --taint-analysis"
+            "@mago",
+            "@tests",
+            "composer audit",
+            "vendor/bin/psalm --taint-analysis"
         ]
     },
     "config": {
@@ -68,5 +70,15 @@
             "carthage-software/mago": true,
             "cyclonedx/cyclonedx-php-composer": true
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../contracts",
+            "canonical": false,
+            "options": {
+                "symlink": false
+            }
+        }
+    ]
 }
