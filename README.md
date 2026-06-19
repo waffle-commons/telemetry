@@ -12,9 +12,26 @@ package provides the **no-op tracing defaults**, a **Prometheus `/waffle-metrics
 middleware, and **stateless worker-metric collectors** (memory peaks, GC cycles, request timing, cache hit
 ratio, DB-pool utilization) for long-running FrankenPHP workers.
 
-> **Status:** scaffolding for **Beta 5 / AXE 5 (RFC-005)** — no implementation yet. The OpenTelemetry SDK
-> bridge lives in the separate [`waffle-commons/telemetry-otel`](https://github.com/waffle-commons/telemetry-otel)
-> package so the vendor SDK never enters the core perimeter.
+> **Status:** shipped in **Beta 5 / AXE 5 (RFC-005)**. The OpenTelemetry SDK bridge lives in the separate
+> [`waffle-commons/telemetry-otel`](https://github.com/waffle-commons/telemetry-otel) package so the vendor
+> SDK never enters the core perimeter.
+
+## What's inside
+
+- **Metrics** — `Metric\MetricsRegistry` (counters / gauges / histograms) backed by `Metric\ApcuMetricStore`,
+  so counters live in APCu shared memory and never on the worker heap. Falls back to the contract's
+  `NullMetricsRegistry` when APCu is unavailable.
+- **Collectors** — stateless `Collector\MemoryCollector` (usage + peak), `Collector\GcCollector` (cycles,
+  collected objects, root buffer) and `Collector\PoolUtilizationCollector` (DB-pool active / idle / capacity).
+- **Exporter & endpoint** — `Exporter\PrometheusExporter` renders the text exposition format;
+  `Middleware\MetricsMiddleware` serves a **fail-closed** `/waffle-metrics` scrape (404 unless a bearer token
+  or allow-listed client IP matches — the endpoint is never revealed to unauthorized callers).
+- **Request instrumentation** — `Middleware\TracingMiddleware` opens the per-request server span (extracting an
+  inbound W3C `traceparent`) and records request count + duration; defaults to the contract no-ops so it is safe
+  to install unconditionally.
+- **Decorators** — `Cache\MeteredCache` (hit / miss counters around any PSR-16 cache) and
+  `Repository\TracingRepositoryDecorator` (optional client spans around an RFC-022 repository; core `data/` now
+  emits DB spans natively, so this decorator is an add-on for non-core repositories).
 
 ## Perimeter
 

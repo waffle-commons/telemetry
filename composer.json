@@ -1,7 +1,6 @@
 {
     "name": "waffle-commons/telemetry",
     "description": "SDK-free enterprise telemetry for Waffle Commons: contract-first tracing no-ops, a Prometheus /waffle-metrics exporter, and stateless worker-metric collectors.",
-    "version": "1.0.0-dev",
     "type": "library",
     "license": "MIT",
     "autoload": {
