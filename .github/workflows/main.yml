@@ -1,13 +1,12 @@
 name: Waffle Granular Pipeline
 
-on: workflow_dispatch
-# Uncomment this to activate the workflow on a new component
-#  push:
-#    branches:
-#      - main
-#    tags:
-#      - '*'
-#  pull_request:
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
 
 jobs:
   prepare:
@@ -228,7 +227,10 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: gd, pgsql, pdo_mysql, pdo_pgsql, gmp, fileinfo, intl, opcache, xml, iconv, redis, mailparse
+          # apcu (+ apc.enable_cli=1) is REQUIRED: ApcuMetricStore / MetricsRegistry tests exercise real
+          # APCu shared memory. Without it those tests skip and coverage drops below the 95% gate.
+          extensions: apcu, fileinfo, intl, opcache, xml, iconv
+          ini-values: apc.enable_cli=1
           coverage: xdebug
           tools: composer:v2
       - uses: actions/cache@v5

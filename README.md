@@ -1,91 +1,53 @@
-# Waffle Commons - Component Template
-<img src="./images/waffle-commons_logo.png" alt="Logo Waffles Commons" style="width: 25%;" /><br />
-This repository serves as a standardized template for creating new components within the Waffle Commons ecosystem. It provides a consistent structure, tooling configuration (Composer, PHPUnit, Mago, Psalm), and CI/CD pipeline (GitHub Actions) to accelerate development and maintain quality across all packages.
+[![Discord](https://img.shields.io/discord/755288001592033391?logo=discord)](https://discord.gg/eKgywnfXr2)
+[![PHP Version Require](http://poser.pugx.org/waffle-commons/telemetry/require/php)](https://packagist.org/packages/waffle-commons/telemetry)
+[![PHP CI](https://github.com/waffle-commons/telemetry/actions/workflows/main.yml/badge.svg)](https://github.com/waffle-commons/telemetry/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/waffle-commons/telemetry/graph/badge.svg)](https://codecov.io/gh/waffle-commons/telemetry)
+[![Latest Stable Version](http://poser.pugx.org/waffle-commons/telemetry/v)](https://packagist.org/packages/waffle-commons/telemetry)
+[![Packagist License](https://img.shields.io/packagist/l/waffle-commons/telemetry)](https://github.com/waffle-commons/telemetry/blob/main/LICENSE.md)
 
-**Note:** Replace `YOUR_CODECOV_TOKEN_HERE` in the Codecov badge URL if you integrate Codecov. Also, replace `{COMPONENT_NAME}` placeholders in badges after running the configuration script or manually.
+# Waffle Commons — Telemetry
 
-## Purpose
-Using this template ensures that new components adhere to the established standards of the Waffle Commons project regarding:
-- **Directory Structure:** Standard `src/`, `tests/`, etc.
-- **Coding Standards:** Enforced via Mago (formatter, linter, analyzer) with pre-configured rules.
-- **Testing:** Setup for PHPUnit, including configuration (`phpunit.xml`), bootstrap, and coverage reporting.
-- **Static Analysis:** Configured for Psalm and Mago Analyze. 
-- **Automation:** Pre-configured GitHub Actions workflow for CI, mirroring the core framework's quality checks. 
-- **Documentation:** Standard files like this `CONTRIBUTING.md`, `LICENSE.md`, issue templates, etc. 
-- **Composer Setup:** Pre-filled `composer.json` with necessary scripts and development dependencies.
+SDK-free enterprise telemetry for the [Waffle Commons](https://github.com/waffle-commons) framework. This
+package provides the **no-op tracing defaults**, a **Prometheus `/waffle-metrics`** exporter + diagnostics
+middleware, and **stateless worker-metric collectors** (memory peaks, GC cycles, request timing, cache hit
+ratio, DB-pool utilization) for long-running FrankenPHP workers.
 
-## How to Use This Template
-Follow these steps precisely to create a new Waffle Commons component:
+> **Status:** shipped in **Beta 5 / AXE 5 (RFC-005)**. The OpenTelemetry SDK bridge lives in the separate
+> [`waffle-commons/telemetry-otel`](https://github.com/waffle-commons/telemetry-otel) package so the vendor
+> SDK never enters the core perimeter.
 
-### 1. **Clone the Template:**
-Use this template to create a new `waffle-commons` repository.
+## What's inside
 
-### 2. **Run the Configuration Script:**
-Execute the provided configuration script, passing the PascalCase component name as the first and only argument. This script will automatically replace the placeholder {COMPONENT_NAME} in file contents, filenames, and directory names.
+- **Metrics** — `Metric\MetricsRegistry` (counters / gauges / histograms) backed by `Metric\ApcuMetricStore`,
+  so counters live in APCu shared memory and never on the worker heap. Falls back to the contract's
+  `NullMetricsRegistry` when APCu is unavailable.
+- **Collectors** — stateless `Collector\MemoryCollector` (usage + peak), `Collector\GcCollector` (cycles,
+  collected objects, root buffer) and `Collector\PoolUtilizationCollector` (DB-pool active / idle / capacity).
+- **Exporter & endpoint** — `Exporter\PrometheusExporter` renders the text exposition format;
+  `Middleware\MetricsMiddleware` serves a **fail-closed** `/waffle-metrics` scrape (404 unless a bearer token
+  or allow-listed client IP matches — the endpoint is never revealed to unauthorized callers).
+- **Request instrumentation** — `Middleware\TracingMiddleware` opens the per-request server span (extracting an
+  inbound W3C `traceparent`) and records request count + duration; defaults to the contract no-ops so it is safe
+  to install unconditionally.
+- **Decorators** — `Cache\MeteredCache` (hit / miss counters around any PSR-16 cache) and
+  `Repository\TracingRepositoryDecorator` (optional client spans around an RFC-022 repository; core `data/` now
+  emits DB spans natively, so this decorator is an add-on for non-core repositories).
+
+## Perimeter
+
+Depends only on `waffle-commons/contracts` (+ `waffle-commons/utils`). Every telemetry interface
+(`Waffle\Commons\Contracts\Telemetry\*`) lands in `contracts` first — `mago guard` enforces the boundary.
+Counters live in shared memory (APCu), never on the resettable worker heap (`wfl igor` 0 KO).
+
+## Development
+
 ```shell
-# Example for 'Http' component
-./configure-component.sh Http
+composer install
+composer mago     # fmt + lint + analyze + guard — must be ZERO output
+composer tests    # PHPUnit 12.5, >=95% coverage
+composer igor     # worker-safety audit — 0 KO
 ```
-- Carefully review the output of the script to ensure all replacements and renames were successful.
-
-### 3. **Review and Finalize `composer.json`:**
-- Open composer.json.
-- Verify the `"name"` is correct (e.g., `waffle-commons/http`). It should have been updated by the script.
-- Crucially, update the `"description"` field to accurately describe your new component's purpose. 
-- Add any specific `require` dependencies needed for this component (e.g., `psr/http-message` for the `http` component).
-- Add specific `require-dev` dependencies if needed beyond the standard template (e.g., `php-mock/php-mock-phpunit` was included, but others might be needed).
-- Verify the PSR-4 namespaces in `autoload` and `autoload-dev` were correctly updated by the script.
-
-### 4. **Updates in various files:**
-- Edit this `README.md` file to describe the component.
-- Edit `.github/workflows/main.yml` to activate it.
-
-### 5. **Configure GitHub Repository Settings:**
-- **Branch Protection:** Set up branch protection rules for `main` (require status checks to pass, require PR reviews, etc.).
-- **Secrets:** Add necessary secrets (e.g., `CODECOV_TOKEN`) if applicable for CI workflows.
-- **Labels:** Ensure standard labels (`bug`, `enhancement`, `good first issue`, etc.) are created (consider copying from `waffle-commons/waffle`).
-- **Discussions:** Enable GitHub Discussions if desired for the component.
-- **Issue:** Create customized template for **Bug report** (`.github/ISSUE_TEMPLATE/bug-report.md`) and  **Feature request** (`.github/ISSUE_TEMPLATE/feature-request.md`)
-- **Pull request:** Ensure standard pull requests respect the template (`.github/PULL_REQUEST_TEMPLATE.md`)
-
-### 6. **Start Developing!**
-You can now start writing your component's code in the `src/` directory and corresponding tests in the `tests/` directory. Remember to follow the established coding standards.
-
-## Development Tooling (Composer Scripts)
-This template comes with pre-configured Composer scripts for common development tasks. Run these from the root of your new component's directory:
-- **Install Dependencies:**
-    ```shell
-    composer install
-    ```
-- **Run Tests (PHPUnit):** Generates coverage reports in `var/data/phpunit-coverage/`.
-    ```shell
-    composer tests
-    ```
-- **Run Mago (Format Check, Lint, Analyze):**
-    ```shell
-    composer mago
-    ```
-    - Check Formatting Only: `composer formatter --check`
-    - Apply Formatting: `composer formatter` 
-    - Run Linter: `composer linter`
-    - Run Analyzer: `composer analyzer`
-- **Run Psalm-Taint Analysis:**
-    ```shell
-    vendor/bin/psalm --taint-analysis
-    ```
-- **Check for Dependency Vulnerabilities:**
-    ```shell
-    composer audit
-    ```
-- **Run All CI Checks Locally:** Simulates the checks run in GitHub Actions (without security checks).
-    ```shell
-    composer ci
-    ```
-
-## Contributing
-While this repository is a template, contributions to the template itself (improving tooling, structure, CI) are welcome via Pull Requests to the `waffle-commons/component-template` repository.
-
-For contributions to components created from this template, please refer to the main and the specific `CONTRIBUTING.md` within that component's repository.
 
 ## License
-This template, and components created from it by default, are licensed under the MIT License. See the file for details.
+
+MIT — see [LICENSE.md](./LICENSE.md).
