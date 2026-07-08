@@ -69,15 +69,5 @@
             "carthage-software/mago": true,
             "cyclonedx/cyclonedx-php-composer": true
         }
-    },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../contracts",
-            "canonical": false,
-            "options": {
-                "symlink": false
-            }
-        }
-    ]
+    }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "058250bcb13205e54ff73340d453a09d",
+    "content-hash": "4765bb8ebb779c65e1548f32ebaef597",
     "packages": [
         {
             "name": "psr/cache",
@@ -480,10 +480,16 @@
         {
             "name": "waffle-commons/contracts",
             "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/waffle-commons/contracts.git",
+                "reference": "b1f1e1974ba8ddabcac2cd0528bd635c025960bf"
+            },
             "dist": {
-                "type": "path",
-                "url": "../contracts",
-                "reference": "e73ed9bdea123ccf53264276b8bc5c6cf7f28ad7"
+                "type": "zip",
+                "url": "https://api.github.com/repos/waffle-commons/contracts/zipball/b1f1e1974ba8ddabcac2cd0528bd635c025960bf",
+                "reference": "b1f1e1974ba8ddabcac2cd0528bd635c025960bf",
+                "shasum": ""
             },
             "require": {
                 "php": "^8.5",
@@ -504,57 +510,14 @@
                 "phpunit/phpunit": "^12.5",
                 "vimeo/psalm": "^6.16"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Waffle\\Commons\\Contracts\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "WaffleTests\\Commons\\Contracts\\": "tests/src/"
-                }
-            },
-            "scripts": {
-                "formatter": [
-                    "vendor/bin/mago fmt"
-                ],
-                "linter": [
-                    "vendor/bin/mago lint"
-                ],
-                "analyzer": [
-                    "vendor/bin/mago analyze"
-                ],
-                "guard": [
-                    "vendor/bin/mago guard"
-                ],
-                "phpunit": [
-                    "vendor/bin/phpunit --log-junit var/data/phpunit-coverage/junit.xml --coverage-html var/data/phpunit-coverage"
-                ],
-                "benchmark": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "vendor/bin/phpbench run --report=default_report --output=waffle_html --retry-threshold=10"
-                ],
-                "mago": [
-                    "@formatter",
-                    "@linter",
-                    "@analyzer",
-                    "@guard"
-                ],
-                "tests": [
-                    "@phpunit"
-                ],
-                "scan": [
-                    "@mago",
-                    "@tests"
-                ],
-                "ci": [
-                    "@mago",
-                    "@tests",
-                    "composer audit",
-                    "vendor/bin/psalm --taint-analysis"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -565,10 +528,11 @@
                 }
             ],
             "description": "Contracts component for Waffle framework.",
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/waffle-commons/contracts/issues",
+                "source": "https://github.com/waffle-commons/contracts/tree/main"
+            },
+            "time": "2026-07-08T15:31:26+00:00"
         }
     ],
     "packages-dev": [
