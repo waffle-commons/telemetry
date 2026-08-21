@@ -6,8 +6,10 @@ namespace Waffle\Commons\Telemetry\Metric;
 
 use Waffle\Commons\Telemetry\Support\Coerce;
 
+use function apcu_enabled;
 use function apcu_fetch;
 use function apcu_store;
+use function function_exists;
 use function in_array;
 
 /**
@@ -30,6 +32,20 @@ final readonly class ApcuMetricStore implements MetricStoreInterface
     public function __construct(
         private string $prefix = 'wfl_metric:',
     ) {}
+
+    /**
+     * Whether this store can actually be used on the running host.
+     *
+     * `apcu_enabled()` is itself provided by ext-apcu, so calling it directly to
+     * decide "is APCu available?" fatals on a host without the extension — the
+     * documented {@see \Waffle\Commons\Contracts\Telemetry\Metrics\NullMetricsRegistry}
+     * fallback could never be reached. Callers wiring a registry MUST gate on this
+     * instead of on `apcu_enabled()`.
+     */
+    public static function isAvailable(): bool
+    {
+        return function_exists('apcu_enabled') && apcu_enabled();
+    }
 
     #[\Override]
     public function add(string $key, float $delta): void
