@@ -9,7 +9,6 @@ use Waffle\Commons\Telemetry\Metric\ApcuMetricStore;
 use WaffleTests\Commons\Telemetry\AbstractTestCase;
 
 use function apcu_clear_cache;
-use function apcu_enabled;
 
 #[CoversClass(ApcuMetricStore::class)]
 final class ApcuMetricStoreTest extends AbstractTestCase
@@ -18,10 +17,17 @@ final class ApcuMetricStoreTest extends AbstractTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (!apcu_enabled()) {
+        if (!ApcuMetricStore::isAvailable()) {
             self::markTestSkipped('APCu is not enabled in this environment.');
         }
         apcu_clear_cache();
+    }
+
+    public function testIsAvailableReportsTrueWhenApcuIsEnabled(): void
+    {
+        // setUp() already skipped the class when APCu is absent, so reaching here
+        // means the extension is loaded and enabled.
+        static::assertTrue(ApcuMetricStore::isAvailable());
     }
 
     public function testAddAccumulatesAcrossCalls(): void

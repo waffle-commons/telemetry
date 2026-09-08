@@ -69,5 +69,8 @@
             "carthage-software/mago": true,
             "cyclonedx/cyclonedx-php-composer": true
         }
+    },
+    "suggest": {
+        "ext-apcu": "To back MetricsRegistry with ApcuMetricStore — shared-memory counters that survive a worker request without living on the worker heap. Without it, wire NullMetricsRegistry instead."
     }
 }

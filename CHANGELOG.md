@@ -5,6 +5,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Released in lockstep with the Waffle Commons umbrella tag.
 
+## [0.1.0-beta6] — 2026-09
+
+**Theme: documentation.**
+
+### Changed
+- `composer.json` gains a `suggest` entry for `ext-apcu`, the extension `ApcuMetricStore` needs. It was previously an undeclared runtime requirement.
+
+### Fixed
+- README corrected: the dependency perimeter is contracts-only — no `utils` requirement exists in `composer.json`, `mago.toml` or any import.
+
+### Documentation
+- The README now links into the central Diátaxis documentation tree (DOC-02).
+
 ## [0.1.0-beta5] — 2026-07-08
 
 **Theme: enterprise telemetry & worker metrics (AXE 5 / RFC-005).**
