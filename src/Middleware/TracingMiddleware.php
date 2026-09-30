@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Waffle\Commons\Telemetry\Middleware;
 
+use IgorPhp\IgorBundle\Attribute\WorkerSafe;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -40,6 +41,9 @@ final readonly class TracingMiddleware implements MiddlewareInterface
      *                   have been recorded (finish-request semantics).
      */
     #[\Override]
+    #[WorkerSafe(
+        reason: 'per-call span from the injected tracer, ended in finally; attributes and status go to that span only, nothing survives the call',
+    )]
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $method = $request->getMethod();

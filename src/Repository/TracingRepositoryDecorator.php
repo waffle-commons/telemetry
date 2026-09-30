@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Waffle\Commons\Telemetry\Repository;
 
 use Generator;
+use IgorPhp\IgorBundle\Attribute\WorkerSafe;
 use Throwable;
 use Waffle\Commons\Contracts\Data\Query\QueryInterface;
 use Waffle\Commons\Contracts\Data\Repository\RepositoryInterface;
@@ -83,6 +84,9 @@ final readonly class TracingRepositoryDecorator implements RepositoryInterface
         }
     }
 
+    #[WorkerSafe(
+        reason: 'starts one span per repository operation through the injected tracer and returns it; every caller (find, findOne, stream) ends it in finally',
+    )]
     private function span(string $operation): SpanInterface
     {
         $span = $this->tracer->startSpan('waffle.db.query', SpanKind::Client);
