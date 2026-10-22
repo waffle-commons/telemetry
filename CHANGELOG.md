@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Released in lockstep with the Waffle Commons umbrella tag.
 
+## [Unreleased]
+
+### Added
+- **Dev profiler headers (DXP-01, RFC-018 §3.2):** `Middleware\ProfilerHeadersMiddleware` adds `X-Waffle-Time` (ms), `X-Waffle-Memory` (current usage in MiB, never the process-wide peak `/waffle-metrics` reports) and `Server-Timing: app;dur=…` to every response, plus `X-Waffle-Queries` when given a `Profiler\QueryCountingTracer`. That tracer decorates the registered `TracerInterface` and counts the `waffle.db.query` spans the data layer opens per query; it implements `ResettableInterface`, so the count is per request. Raw PDO on a pooled connection opens no span and is not counted. Debug only: the headers disclose internals (RFC-018 §4).
+
 ## [0.1.0-beta6] — 2026-09
 
 **Theme: documentation.**
