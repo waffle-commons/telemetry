@@ -18,6 +18,10 @@ until a real backend is wired in. The OpenTelemetry SDK bridge lives in the sepa
 [`waffle-commons/telemetry-otel`](https://github.com/waffle-commons/telemetry-otel) package, so the vendor SDK
 never enters this core perimeter.
 
+## 🆕 Beta-7 — dev profiler headers (DXP-01)
+
+`Middleware\ProfilerHeadersMiddleware` adds `X-Waffle-Time` (ms), `X-Waffle-Memory` (current usage in MiB, never the process-wide peak that `/waffle-metrics` reports) and `Server-Timing: app;dur=…` to every response, plus `X-Waffle-Queries` when it is given a `Profiler\QueryCountingTracer`. That tracer decorates the registered `TracerInterface` and counts the `waffle.db.query` spans the data layer opens per query; it implements `ResettableInterface`, so the count is per request, and raw PDO on a pooled connection opens no span, so it is not counted. **Debug only:** the headers disclose internals.
+
 ## 📦 Installation
 
 ```bash
@@ -38,6 +42,8 @@ composer require waffle-commons/telemetry
 | `Waffle\Commons\Telemetry\Middleware\TracingMiddleware` | `final readonly` PSR-15 middleware opening the per-request `SpanKind::Server` root span and recording request count + duration. |
 | `Waffle\Commons\Telemetry\Cache\MeteredCache` | `final readonly` decorator — wraps any `Contracts\Cache\CacheInterface` to record hit/miss counters. |
 | `Waffle\Commons\Telemetry\Repository\TracingRepositoryDecorator` | `final readonly` decorator — wraps any RFC-022 `RepositoryInterface` to emit a `waffle.db.query` client span per call. |
+| `Waffle\Commons\Telemetry\Middleware\ProfilerHeadersMiddleware` | PSR-15 dev profiler: `X-Waffle-Time`, `X-Waffle-Memory`, `X-Waffle-Queries`, `Server-Timing` (*Beta-7*, DXP-01, debug only). |
+| `Waffle\Commons\Telemetry\Profiler\QueryCountingTracer` | `TracerInterface` decorator counting the request's `waffle.db.query` spans; resettable per request (*Beta-7*). |
 
 ## 🔌 Wiring
 
