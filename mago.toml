@@ -27,6 +27,8 @@ psr = ["Psr\\**"]
 [[guard.perimeter.rules]]
 namespace = "Waffle\\Commons\\Telemetry"
 permit = [
+    # Worker-safety audit tooling (igor-php): dev-only #[WorkerSafe] metadata, inert at runtime.
+    "IgorPhp\\IgorBundle\\Attribute\\**",
     "Waffle\\Commons\\Telemetry\\**",
     "Waffle\\Commons\\Contracts\\**",
     "@layer:core",

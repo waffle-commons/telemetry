@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace WaffleTests\Commons\Telemetry\Helper;
 
 use DateInterval;
+use InvalidArgumentException;
 use Waffle\Commons\Contracts\Cache\CacheInterface;
 
 use function array_key_exists;
+use function get_debug_type;
+use function is_string;
+use function sprintf;
 
 /** Minimal in-memory PSR-16 cache for decorator tests. */
 final class ArrayCache implements CacheInterface
@@ -60,6 +64,12 @@ final class ArrayCache implements CacheInterface
     public function setMultiple(iterable $values, int|DateInterval|null $ttl = null): bool
     {
         foreach ($values as $key => $value) {
+            if (!is_string($key)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Cache key must be a string, got %s.',
+                    get_debug_type($key),
+                ));
+            }
             $this->store[$key] = $value;
         }
 

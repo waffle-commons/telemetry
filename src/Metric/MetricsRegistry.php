@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Waffle\Commons\Telemetry\Metric;
 
+use IgorPhp\IgorBundle\Attribute\WorkerSafe;
 use Waffle\Commons\Contracts\Telemetry\Metrics\Enum\MetricType;
 use Waffle\Commons\Contracts\Telemetry\Metrics\MetricSample;
 use Waffle\Commons\Contracts\Telemetry\Metrics\MetricsCollectorInterface;
@@ -32,18 +33,27 @@ final readonly class MetricsRegistry implements MetricsRegistryInterface, Metric
     ) {}
 
     #[\Override]
+    #[WorkerSafe(
+        reason: 'writes through the injected metric store (process-wide counters are its purpose) to the backend by design; no worker memory is mutated',
+    )]
     public function increment(string $name, float $value = 1.0, array $labels = []): void
     {
         $this->store->add($this->key($name, MetricType::Counter, $labels), $value);
     }
 
     #[\Override]
+    #[WorkerSafe(
+        reason: 'writes through the injected metric store (process-wide gauges are its purpose) to the backend by design; no worker memory is mutated',
+    )]
     public function gauge(string $name, float $value, array $labels = []): void
     {
         $this->store->set($this->key($name, MetricType::Gauge, $labels), $value);
     }
 
     #[\Override]
+    #[WorkerSafe(
+        reason: 'writes through the injected metric store (process-wide histograms are its purpose) to the backend by design; no worker memory is mutated',
+    )]
     public function observe(string $name, float $value, array $labels = []): void
     {
         $this->store->add($this->key($name . '_sum', MetricType::Counter, $labels), $value);
